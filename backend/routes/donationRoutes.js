@@ -113,7 +113,7 @@ router
     const id = req.params.id;
 
     const query = `
-      SELECT d.*, 
+      SELECT d.*, o.* ,
       u.full_name AS donor_name, 
       o.name AS organization_name, 
       COALESCE(SUM(di.count), 0) AS total_items
@@ -125,7 +125,7 @@ router
       GROUP BY d.id
   `;
     try {
-      const response = await db.query(query, [id]);
+      const response = await db.query(query, [id]);      
       res.status(200).json(response[0]);
     } catch (error) {
       res.status(500).json({
@@ -164,7 +164,7 @@ router
   })
   .get("/leaderboard", async (req, res) => {
     const query =
-      "SELECT id, full_name AS name, points FROM users ORDER BY points DESC";
+      "SELECT id, full_name AS name, points FROM users WHERE role='donor' ORDER BY points DESC";
 
     try {
       const [rows] = await db.query(query);
