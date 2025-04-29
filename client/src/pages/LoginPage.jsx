@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
-import loginImage from "../images/clothing-donation-lettering-and-illustration-isolated-on-white-background-set-of-clothes-accessories-and-shoes-for-charity-mindful-lifestyle-vector.jpg";
 import { useAuth } from "context/AuthContext";
 import EmailInput from "components/form/EmailInput";
 import PasswordInput from "components/form/PasswordInput";
@@ -51,10 +50,10 @@ const Login = () => {
     <div className="container py-5">
       <div className="row align-items-center justify-content-center">
         <div className="col-lg-8 shadow-lg p-5 rounded">
-          <div className="row">
+          <div className="row align-items-center">
             <h2 className="text-center mb-4">Login</h2>
             <div className="col-lg-6 d-flex justify-content-center align-items-center">
-              <img src={loginImage} alt="Login" className="img-fluid" />
+              <img src={"/register_image.png"} alt="Login" className="img-fluid h-100 object-fit-cover" />
             </div>
             <div className="col-lg-6">
               <form onSubmit={handleSubmit}>

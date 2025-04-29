@@ -1,19 +1,24 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { CSVLink } from "react-csv";
 import api from "api/apiService";
 import endpoints from "api/endpoints";
 
 const Users = () => {
     const [users, setUsers] = useState([]);
     const [error, setError] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
 
     const fetchUsers = async () => {
+        setIsLoading(true);
         try {
             const response = await api.get(endpoints.users.all);
             setUsers(response.data);
         } catch (err) {
             setError("Failed to fetch users.");
             console.error(err);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -40,96 +45,123 @@ const Users = () => {
               )
             );
             setError("");
-          } catch (err) {
+        } catch (err) {
             setError("Failed to approve User.");
             console.error(err);
-          }
+        }
     };
 
     useEffect(() => {
         fetchUsers();
     }, []);
 
+    // Prepare CSV data
+    const csvData = users.map(user => ({
+        "Full Name": user.full_name,
+        "Email": user.email,
+        "Phone": user.phone_number,
+        "Address": user.address,
+        "Role": user.role,
+        "Verified": user.is_verified ? "Yes" : "No",
+        "Profile Image": user.profile_image ? `http://localhost:5000/uploads/${user.profile_image}` : 'None',
+        "Created At": new Date(user.created_at).toLocaleString(),
+        "Updated At": new Date(user.updated_at).toLocaleString()
+    }));
+
     return (
         <div className="container py-5">
             <h2 className="mb-4">Users</h2>
-            <div className="d-flex justify-content-end mb-3">
-                <Link to="/dashboard/admin/users/create" className="btn btn-success">
-                    Create New User
-                </Link>
+            <div className="d-flex justify-content-between mb-3">
+                <div>
+                    <CSVLink 
+                        data={csvData}
+                        filename={"users_export.csv"}
+                        className="btn btn-info me-2"
+                    >
+                        Export to CSV
+                    </CSVLink>
+                </div>
+                <div>
+                    <Link to="/dashboard/admin/users/create" className="btn btn-success">
+                        Create New User
+                    </Link>
+                </div>
             </div>
 
             {error && <div className="alert alert-danger">{error}</div>}
+            {isLoading && <div className="text-center">Loading users...</div>}
 
-            <table className="table table-bordered table-hover">
-                <thead className="table-light">
-                    <tr>
-                        <th>Full Name</th>
-                        <th>Email</th>
-                        <th>Profile Image</th>
-                        <th>Phone</th>
-                        <th>Address</th>
-                        <th>Role</th>
-                        <th>Is Verified</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {users.map((user) => (
-                        <tr key={user.id}>
-                            <td>{user.full_name}</td>
-                            <td>{user.email}</td>
-                            <td className="d-flex align-items-center justify-content-center">
-                                <img
-                                    src={`http://localhost:5000/uploads/${user.profile_image}` || "/path/to/default-image.jpg"}
-                                    alt={`${user.full_name}'s profile`}
-                                    className="img-thumbnail"
-                                    style={{ width: "100px", height: "100px", objectFit: "cover" }}
-                                />
-                            </td>
-                            <td>{user.phone_number}</td>
-                            <td>{user.address}</td>
-                            <td>{user.role}</td>
-                            <td>
-                                <span className={`badge ${user.is_verified ? "bg-success" : "bg-danger"}`}>
-                                    {user.is_verified ? "True" : "False"}
-                                </span>
-                            </td>
-                            <td>
-                                <div className="d-flex flex-column gap-2">
-                                    {!user.is_verified && (
-                                        <button
-                                            onClick={() => handleVerify(user.id)}
-                                            className="btn btn-sm btn-success m-0"
-                                        >
-                                            Verify
-                                        </button>
-                                    )}
-                                    <Link
-                                        to={`/dashboard/admin/users/update/${user.id}`}
-                                        className="btn btn-sm btn-primary"
-                                    >
-                                        Edit
-                                    </Link>
-                                    <button
-                                        onClick={() => handleDelete(user.id)}
-                                        className="btn btn-sm btn-danger m-0"
-                                    >
-                                        Delete
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    ))}
-                    {users.length === 0 && (
+            <div className="table-responsive">
+                <table className="table table-bordered table-hover">
+                    <thead className="table-light">
                         <tr>
-                            <td colSpan="6" className="text-center">
-                                No users found.
-                            </td>
+                            <th>Full Name</th>
+                            <th>Email</th>
+                            <th>Profile Image</th>
+                            <th>Phone</th>
+                            <th>Address</th>
+                            <th>Role</th>
+                            <th>Is Verified</th>
+                            <th>Actions</th>
                         </tr>
-                    )}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {users.map((user) => (
+                            <tr key={user.id}>
+                                <td>{user.full_name}</td>
+                                <td>{user.email}</td>
+                                <td className="d-flex align-items-center justify-content-center">
+                                    <img
+                                        src={user.profile_image ? `http://localhost:5000/uploads/${user.profile_image}` : "/path/to/default-image.jpg"}
+                                        alt={`${user.full_name}'s profile`}
+                                        className="img-thumbnail"
+                                        style={{ width: "100px", height: "100px", objectFit: "cover" }}
+                                    />
+                                </td>
+                                <td>{user.phone_number}</td>
+                                <td>{user.address}</td>
+                                <td>{user.role}</td>
+                                <td>
+                                    <span className={`badge ${user.is_verified ? "bg-success" : "bg-danger"}`}>
+                                        {user.is_verified ? "True" : "False"}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div className="d-flex flex-column gap-2">
+                                        {!user.is_verified && (
+                                            <button
+                                                onClick={() => handleVerify(user.id)}
+                                                className="btn btn-sm btn-success m-0"
+                                            >
+                                                Verify
+                                            </button>
+                                        )}
+                                        <Link
+                                            to={`/dashboard/admin/users/update/${user.id}`}
+                                            className="btn btn-sm btn-primary"
+                                        >
+                                            Edit
+                                        </Link>
+                                        <button
+                                            onClick={() => handleDelete(user.id)}
+                                            className="btn btn-sm btn-danger m-0"
+                                        >
+                                            Delete
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                        {users.length === 0 && !isLoading && (
+                            <tr>
+                                <td colSpan="8" className="text-center">
+                                    No users found.
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 };

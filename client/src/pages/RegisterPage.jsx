@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, Link, Navigate, useParams } from "react-router-dom";
-import registerImage from "../images/clothing-donation-lettering-and-illustration-isolated-on-white-background-set-of-clothes-accessories-and-shoes-for-charity-mindful-lifestyle-vector.jpg";
+import { useNavigate, Link, Navigate, useLocation } from "react-router-dom";
 import TextInput from "components/form/TextInput";
 import PhoneNumberInput from "components/form/PhoneNumberInput";
 import PasswordInput from "components/form/PasswordInput";
@@ -9,9 +8,12 @@ import { ROLES } from "constants/roles";
 import api from "api/apiService";
 import endpoints from "api/endpoints";
 
-const Register = ({ isDistributor = false }) => {
+const Register = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated, register } = useAuth();
+  const location = useLocation();
+
+  const isDistributorPath = location.pathname.includes("/distributor");
 
   const [formData, setFormData] = useState({
     full_name: "",
@@ -20,7 +22,7 @@ const Register = ({ isDistributor = false }) => {
     confirmPassword: "",
     phone_number: "",
     address: "",
-    role: isDistributor ? ROLES.DISTRIBUTOR : ROLES.DONOR,
+    role: isDistributorPath ? ROLES.DISTRIBUTOR : ROLES.DONOR,
     organization_id: null
   });
 
@@ -28,23 +30,29 @@ const Register = ({ isDistributor = false }) => {
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
+    setFormData(prev => ({
+      ...prev,
+      role: isDistributorPath ? ROLES.DISTRIBUTOR : ROLES.DONOR
+    }));
+  }, [isDistributorPath]);
+
+  useEffect(() => {
     const fetchOrganizations = async () => {
       try {
         const res = await api.get(endpoints.organizations.all);
-        const data = res.data;
-        setOrganizations(data);
+        setOrganizations(res.data);
       } catch (error) {
         console.error("Failed to fetch organizations:", error);
       }
     };
 
-    if (isDistributor) {
+    if (isDistributorPath) {
       fetchOrganizations();
     }
-  }, [isDistributor]);
+  }, [isDistributorPath]);
 
   const handleChange = (e) => {
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
       [e.target.name]: e.target.value,
     }));
@@ -58,8 +66,9 @@ const Register = ({ isDistributor = false }) => {
     e.preventDefault();
     const { full_name, email, password, confirmPassword, phone_number, address, organization_id } = formData;
 
-    if (!full_name || !email || !password || !phone_number || !address || (isDistributor && !organization_id)) {
-      setErrorMessage("Please fill all fields.");
+    if (!full_name || !email || !password || !phone_number || !address || 
+        (isDistributorPath && !organization_id)) {
+      setErrorMessage("Please fill all required fields.");
       return;
     }
 
@@ -68,14 +77,13 @@ const Register = ({ isDistributor = false }) => {
       return;
     }
 
-    try {
-      const user = await register(formData);
-
+    try {      
+      await register(formData);
       alert("Registration successful!");
-      navigate(`/dashboard/${user.role}`);
+      navigate("/login");
     } catch (error) {
       console.error("Registration error:", error);
-      setErrorMessage(error.message || "Registration failed.");
+      setErrorMessage(error.response?.data?.message || "Registration failed. Please try again.");
     }
   };
 
@@ -84,9 +92,11 @@ const Register = ({ isDistributor = false }) => {
       <div className="row align-items-center justify-content-center">
         <div className="col-lg-8 shadow-lg p-5 rounded">
           <div className="row">
-            <h2 className="text-center mb-4">Register</h2>
+            <h2 className="text-center mb-4">
+              {isDistributorPath ? "Distributor Registration" : "Donor Registration"}
+            </h2>
             <div className="col-lg-6 d-flex justify-content-center align-items-center">
-              <img src={registerImage} alt="Register" className="img-fluid" />
+              <img src={"/register_image.png"} alt="Register" className="img-fluid h-100 object-fit-cover" />
             </div>
             <div className="col-lg-6">
               <form onSubmit={handleSubmit}>
@@ -102,6 +112,7 @@ const Register = ({ isDistributor = false }) => {
                 <TextInput
                   label="Email"
                   name="email"
+                  type="email"
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="Enter your email"
@@ -144,14 +155,14 @@ const Register = ({ isDistributor = false }) => {
                   required
                 />
 
-                {isDistributor && (
+                {isDistributorPath && (
                   <div className="form-group mb-3">
-                    <label htmlFor="organization_id">Organization</label>
+                    <label htmlFor="organization_id">Organization *</label>
                     <select
                       id="organization_id"
                       name="organization_id"
                       className="form-control"
-                      value={formData.organization_id}
+                      value={formData.organization_id || ""}
                       onChange={handleChange}
                       required
                     >
@@ -170,18 +181,20 @@ const Register = ({ isDistributor = false }) => {
                 </button>
 
                 {errorMessage && (
-                  <div className="alert alert-danger my-3" style={{ color: "red" }}>
+                  <div className="alert alert-danger mt-3">
                     {errorMessage}
                   </div>
                 )}
 
                 <div className="mt-3 text-center">
                   <p>
-                    <Link to="/login">Already have an account? Login</Link>
+                    Already have an account? <Link to="/login">Login</Link>
                   </p>
-                  <p>
-                    <Link to="/register/distributor">Register as a Distributor</Link>
-                  </p>
+                  {!isDistributorPath && (
+                    <p>
+                      Want to distribute donations? <Link to="/register/distributor">Register as Distributor</Link>
+                    </p>
+                  )}
                 </div>
               </form>
             </div>

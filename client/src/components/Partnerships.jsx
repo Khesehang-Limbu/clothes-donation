@@ -24,7 +24,7 @@ const Partnerships = () => {
           We welcome partnerships with businesses, schools, and organizations looking to create social impact.
         </p>
         <p>Let's collaborate to make a difference—together!</p>
-        <Link to="/DistributorRegistrationForm.jsx">
+        <Link to="/register/distributor">
           <button className="partner-button">Become a Partner</button>
         </Link>
       </div>

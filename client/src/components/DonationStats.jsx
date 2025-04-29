@@ -91,8 +91,11 @@ const DonationStats = () => {
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
 
+          console.log(distributors);
+          
+
           {distributors.map((distributor, index) => (
-            <Marker
+          <Marker
               key={index}
               position={[distributor.latitude, distributor.longitude]}
               icon={new L.Icon({

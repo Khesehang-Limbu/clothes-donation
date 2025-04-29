@@ -5,7 +5,7 @@ import { Route } from "react-router-dom";
 const authRoutes = [
   <Route key="login" path="/login" element={<Login />} />,
   <Route key="register" path="/register" element={<Register />} />,
-  <Route key={"register-distributor"} path="/register/distributor" element={<Register isDistributor={true} />} />
+  <Route key={"register-distributor"} path="/register/distributor" element={<Register />} />
 ];
 
 export default authRoutes;

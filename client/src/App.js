@@ -10,6 +10,9 @@ import { AuthProvider } from "context/AuthContext";
 import Layout from "components/Layout";
 import authRoutes from "routes/AuthRoutes";
 import dashboardRoutes from "routes/DashboardRoutes";
+import ContactSupport from "pages/ContactPage";
+import AboutUs from "pages/AboutPage";
+import LeaderboardPage from "pages/LeaderboardPage";
 
 function App() {
   return (
@@ -18,6 +21,10 @@ function App() {
         <Routes>
           <Route element={<Layout />}>
             <Route path="/" element={<Home />} />
+            <Route path="/contact" element={<ContactSupport />} />
+            <Route path="/about" element={<AboutUs />} />
+            <Route path="/donor/leaderboard" element={<LeaderboardPage />} />
+            
             {authRoutes}
             {dashboardRoutes}
           </Route>

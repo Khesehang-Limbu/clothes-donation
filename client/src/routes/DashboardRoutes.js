@@ -1,7 +1,6 @@
 import React from "react";
 import { Route } from "react-router-dom";
 import Dashboard from "../pages/Dashboard";
-import MyDonations from "../pages/Donor/MyDonations";
 import UserProfile from "../pages/ProfilePage";
 import ProtectedRoute from "./ProtectedRoutes";
 import Stats from "components/Stats";
@@ -49,15 +48,6 @@ const donorRoutes = [
   />,
 
   // Donor Specific
-  <Route
-    key="my-donations"
-    path="/donations/donor"
-    element={
-      <ProtectedRoute allowedRoles={[ROLES.DONOR]}>
-        <MyDonations />
-      </ProtectedRoute>
-    }
-  />,
   <Route
     path="/dashboard/donor/organizations"
     element={

@@ -19,7 +19,8 @@ const endpoints = {
     detail: (id) => `/donations/detail/${id}`,
     update: (id) => `/donations/update/${id}`,
     delete: (id) => `/donations/delete/${id}`,
-    approve: (id) => `/donations/approve/${id}`
+    approve: (id) => `/donations/approve/${id}`,
+    leaderboard: "/donations/leaderboard"
   },
   users: {
     all: '/users',

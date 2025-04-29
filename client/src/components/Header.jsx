@@ -25,6 +25,7 @@ const Header = () => {
       <div className="container d-flex justify-content-between align-items-center">
         <h1 className="h4 m-0">
           <Link to="/" className="text-white text-decoration-none">
+            <img src="/logo.png" alt="Logo" style={{ height: 50, width: 50 }} className="me-3" />
             Clothes Donation System
           </Link>
         </h1>
@@ -32,20 +33,23 @@ const Header = () => {
         <nav>
           <ul className="nav">
             <li className="nav-item">
-              <Link
-                to={`/profile/${role}`}
-                className="nav-link text-white"
-              >
-                <FontAwesomeIcon icon={faUserCircle} size="lg" title="User Profile" /> {user?.full_name}
-              </Link>
-            </li>
-            <li className="nav-item">
               <Link to={`dashboard/${role}`} className="nav-link text-white">
                 Dashboard
               </Link>
             </li>
             {user ? (
               <>
+                {role === "donor" && (
+                   <li className="nav-item">
+                   <Link
+                     to={"/donor/leaderboard"}
+                     className="nav-link text-white"
+                   >
+                    Leaderboard
+                   </Link>
+                 </li>   
+                )}
+
                 {(role === "donor" || role === "distributor") && (
                   <li className="nav-item">
                     <Link
@@ -81,6 +85,15 @@ const Header = () => {
                     </li>
                   </>
                 )}
+
+                <li className="nav-item">
+                  <Link
+                    to={`/profile/${role}`}
+                    className="nav-link text-white"
+                  >
+                    <FontAwesomeIcon icon={faUserCircle} size="lg" title="User Profile" /> {user?.full_name}
+                  </Link>
+                </li>
 
                 <li className="nav-item">
                   <button onClick={handleLogout} className="btn btn-outline-light ms-3">
