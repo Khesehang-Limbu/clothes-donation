@@ -69,9 +69,9 @@ const OrganizationForm = ({ isEdit }) => {
       if (value !== null) data.append(key, value);
     });
 
-    try {
+    try {      
       const response = isEdit
-        ? await api.put(`${endpoints.organizations.update}/${id}`, data, {
+        ? await api.put(endpoints.organizations.update(id), data, {
             headers: { "Content-Type": "multipart/form-data" },
           })
         : await api.post(endpoints.organizations.create, data, {
